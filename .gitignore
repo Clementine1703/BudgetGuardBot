@@ -1,0 +1,50 @@
+# Byte-compiled / cached files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env
+.envrc
+*.env
+
+# Logs and databases
+logs/
+*.log
+*.sqlite3
+*.db
+instance/
+
+# VS Code settings
+.vscode/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# macOS system files
+.DS_Store
+
+# Python cache
+.cache/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Pytest / Coverage reports
+htmlcov/
+.coverage
+.tox/
+.nox/
+
+# MyPy / Pyright / Type checking
+.mypy_cache/
+.pytest_cache/
+.pyrightcache/
+
+# Matplotlib cache
+.matplotlib/
+
+# Deploy-specific
+*.pem
+
+.idea/
