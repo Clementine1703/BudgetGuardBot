@@ -1,6 +1,5 @@
 import os
 import logging
-from idlelib.iomenu import encoding
 
 from config import settings
 
@@ -35,7 +34,7 @@ def setup_logger():
         logger.addHandler(console_handler)
 
 
-def get_current_chat_logger(chat_id: int):
+def get_current_chat_logger(chat_id: int) -> logging.Logger:
     def remove_all_handlers(logger: logging.Logger):
         for handler in logger.handlers:
             logger.removeHandler(handler)
@@ -54,17 +53,17 @@ def get_current_chat_logger(chat_id: int):
     return logger
 
 
-def apply_filter_to_all_loggers(filter):
+def apply_filter_to_all_loggers(f: logging.Filter) -> None:
     root_logger = logging.getLogger()
     for handler in root_logger.handlers:
-        handler.addFilter(filter)
+        handler.addFilter(f)
 
     original_get_logger = logging.getLogger
 
     def custom_get_logger(name=None):
         logger = original_get_logger(name)
         for handler in logger.handlers:
-            handler.addFilter(filter)
+            handler.addFilter(f)
         return logger
 
     logging.getLogger = custom_get_logger
@@ -73,5 +72,3 @@ def apply_filter_to_all_loggers(filter):
 class ForbiddenWordsFilter(logging.Filter):
     def filter(self, record):
         return not any(word in record.getMessage() for word in settings.LOG_FORBIDDEN_WORDS)
-
-
