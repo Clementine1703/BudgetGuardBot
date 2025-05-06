@@ -1,7 +1,7 @@
 import os
 import logging
 
-from config import settings
+from core.config import settings
 
 
 def setup_logger():
@@ -22,6 +22,7 @@ def setup_logger():
         encoding='utf-8'
     )
     error_handler.setLevel(logging.ERROR)
+    error_handler.setFormatter(logging.Formatter(settings.LOGS_FORMAT))
 
     logger = logging.getLogger()
     logger.addHandler(error_handler)

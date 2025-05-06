@@ -1,3 +1,6 @@
+import importlib
+from pathlib import Path
+
 import asyncio
 from logging.config import fileConfig
 
@@ -7,15 +10,28 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-from database import Base
-import models
+from core.database import Base
+from core.config import settings
 
-from utils import get_db_url
+
+modules_dir = Path(__file__).parent
+
+
+for item in modules_dir.iterdir():
+    if item.is_dir() and not item.name.startswith('__'):
+        models_path = item / 'models.py'
+        if models_path.exists():
+            module_name = f"modules.{item.name}.models"
+            try:
+                importlib.import_module(module_name)
+                print(f"Successfully imported models from {module_name}")
+            except ImportError as e:
+                print(f"Failed to import {module_name}: {e}")
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option('DB_URL', get_db_url())
+config.set_main_option('DB_URL', settings.DB_URL)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
