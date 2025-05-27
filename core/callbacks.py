@@ -12,6 +12,8 @@ class CallbackNamespace(Enum):
     SETTINGS = "settings"
     EXPORT = "export"
 
+    PICKER = "picker"
+
 
 class Callbacks:
     """Централизованное хранилище всех callback-действий бота"""
@@ -23,28 +25,37 @@ class Callbacks:
 
     # ===== EXPENSE =====
     class EXPENSE:
-        SELECT_CATEGORY = f"{CallbackNamespace.EXPENSE.value}:select_category"
-        CREATE_CATEGORY = f"{CallbackNamespace.EXPENSE.value}:create_category"
-        ADD_AMOUNT = f"{CallbackNamespace.EXPENSE.value}:add_amount"
-        ADD_COMMENT = f"{CallbackNamespace.EXPENSE.value}:add_comment"
+        PREFIX = CallbackNamespace.EXPENSE.value
+        SELECT_CATEGORY = f"{PREFIX}:select_category"
+        CREATE_CATEGORY = f"{PREFIX}:create_category"
+        ADD_AMOUNT = f"{PREFIX}:add_amount"
+        ADD_COMMENT = f"{PREFIX}:add_comment"
 
     # ===== INCOME =====
     class INCOME:
-        SELECT_CATEGORY = f"{CallbackNamespace.INCOME.value}:SELECT_category"
-        CREATE_CATEGORY = f"{CallbackNamespace.INCOME.value}:create_category"
-        ADD_AMOUNT = f"{CallbackNamespace.INCOME.value}:add_amount"
-        ADD_COMMENT = f"{CallbackNamespace.INCOME.value}:add_comment"
-        ADD_DATE = f"{CallbackNamespace.INCOME.value}:add_date"
+        PREFIX = CallbackNamespace.EXPENSE.value
+        SELECT_CATEGORY = f"{PREFIX}:select_category"
+        CREATE_CATEGORY = f"{PREFIX}:create_category"
+        ADD_AMOUNT = f"{PREFIX}:add_amount"
+        ADD_COMMENT = f"{PREFIX}:add_comment"
+        ADD_DATE = f"{PREFIX}:add_date"
 
     # ===== ANALYTICS =====
     class ANALYTICS:
-        MENU = f"{CallbackNamespace.ANALYTICS.value}:menu"
-        DAY_STATS = f"{CallbackNamespace.ANALYTICS.value}:day"
-        WEEK_STATS = f"{CallbackNamespace.ANALYTICS.value}:week"
-        MONTH_STATS = f"{CallbackNamespace.ANALYTICS.value}:month"
-        CUSTOM_PERIOD = f"{CallbackNamespace.ANALYTICS.value}:custom"
-        CATEGORY_STATS = f"{CallbackNamespace.ANALYTICS.value}:by_category"
-        COMPARE = f"{CallbackNamespace.ANALYTICS.value}:compare"
+        PREFIX = CallbackNamespace.ANALYTICS.value
+        MENU = f"{PREFIX}:menu"
+        class STATS:
+            PREFIX = f"{CallbackNamespace.ANALYTICS.value}:stats"
+            MENU = PREFIX
+            CATEGORY_PIE = f"{PREFIX}:category_pie"
+            GRAPH = f"{PREFIX}:graph"
+            SUMMARY = f"{PREFIX}:summary"
+            AVERAGE = f"{PREFIX}:average"
+            TOP_RECORDS = f"{PREFIX}:top_records"
+
+        HISTORY = f"{PREFIX}:history"
+        PERIOD = f"{PREFIX}:period"
+        CATEGORY = f"{PREFIX}:category"
 
     # ===== BUDGET =====
     class BUDGET:
@@ -85,3 +96,15 @@ class Callbacks:
         SEND_EMAIL = f"{CallbackNamespace.EXPORT.value}:send_email"
         CSV_EXCEL = f"{CallbackNamespace.EXPORT.value}:csv_excel"
         IMPORT_DATA = f"{CallbackNamespace.EXPORT.value}:import"
+
+    # ===== PERIOD_PICKER =====
+    class PERIOD_PICKER:
+        PREFIX = f"{CallbackNamespace.PICKER.value}:period_picker"
+        NAV = f"{PREFIX}:nav"
+        SELECT = f"{PREFIX}:select"
+        RESET = f"{PREFIX}:reset"
+        CONFIRM = f"{PREFIX}:confirm"
+        PICK_MONTH_YEAR = f"{PREFIX}:pick_month_year"
+        YEAR = f"{PREFIX}:year"
+        MONTH = f"{PREFIX}:month"
+        BACK_TO_CALENDAR = f"{PREFIX}:back_to_calendar"
