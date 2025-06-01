@@ -1,19 +1,34 @@
 from aiogram.types import CallbackQuery
+from aiogram.fsm.state import State
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from datetime import datetime
 from core.callbacks import Callbacks
 
 from modules.calendar.picker import DatePeriodPicker, DatePeriodStates
+from modules.calendar.stages import DATE_CONFIRM
+
 
 router = Router()
 picker = DatePeriodPicker()
 
-@router.callback_query(F.data == Callbacks.PERIOD_PICKER.SELECT)
-async def start_period_picker(callback: CallbackQuery, state: FSMContext):
+async def start_period_picker(
+    callback: CallbackQuery,
+    state: FSMContext,
+    *,
+    target_state: State,
+    target_key: str = "date_period"
+):
     today = datetime.today()
     await state.set_state(DatePeriodStates.SELECTING)
-    await state.update_data(year=today.year, month=today.month, start=None, end=None)
+    await state.update_data(
+        year=today.year,
+        month=today.month,
+        start=None,
+        end=None,
+        target_state=target_state.state,
+        target_key=target_key
+    )
     await callback.message.edit_text(
         "Выберите период:",
         reply_markup=picker.get_keyboard(today.year, today.month)
@@ -80,14 +95,21 @@ async def confirm_selection(callback: CallbackQuery, state: FSMContext):
     start = data.get("start")
     end = data.get("end") or start
 
-    if start is None:
+    if not start:
         await callback.answer("Выберите хотя бы одну дату", show_alert=True)
         return
 
+    target_state = data.get("target_state")
+    target_key = data.get("target_key", "period")
+
+    if target_state:
+        await state.set_state(target_state)
+
+    await state.update_data(**{target_key: {"start": start, "end": end}})
     await callback.message.edit_text(
-        f"Выбранный период: с {start.strftime('%d.%m.%Y')} по {end.strftime('%d.%m.%Y')}"
+        text=f"Выбранный период: с {start.strftime('%d.%m.%Y')} по {end.strftime('%d.%m.%Y')}",
+        reply_markup=DATE_CONFIRM.kb()
     )
-    await state.clear()
     await callback.answer()
 
 

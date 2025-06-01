@@ -20,6 +20,7 @@ class Callbacks:
 
     # ===== COMMON =====
     MAIN_MENU = f"{CallbackNamespace.MAIN.value}:menu"
+    CONFIRM = f"{CallbackNamespace.MAIN.value}:confirm"
     BACK = f"{CallbackNamespace.MAIN.value}:back"
     SKIP = f"{CallbackNamespace.MAIN.value}:skip"
 
@@ -33,7 +34,7 @@ class Callbacks:
 
     # ===== INCOME =====
     class INCOME:
-        PREFIX = CallbackNamespace.EXPENSE.value
+        PREFIX = CallbackNamespace.INCOME.value
         SELECT_CATEGORY = f"{PREFIX}:select_category"
         CREATE_CATEGORY = f"{PREFIX}:create_category"
         ADD_AMOUNT = f"{PREFIX}:add_amount"
@@ -48,14 +49,10 @@ class Callbacks:
             PREFIX = f"{CallbackNamespace.ANALYTICS.value}:stats"
             MENU = PREFIX
             CATEGORY_PIE = f"{PREFIX}:category_pie"
-            GRAPH = f"{PREFIX}:graph"
+            INCOME_EXPENSE_LINE = f"{PREFIX}:graph"
             SUMMARY = f"{PREFIX}:summary"
-            AVERAGE = f"{PREFIX}:average"
-            TOP_RECORDS = f"{PREFIX}:top_records"
 
         HISTORY = f"{PREFIX}:history"
-        PERIOD = f"{PREFIX}:period"
-        CATEGORY = f"{PREFIX}:category"
 
     # ===== BUDGET =====
     class BUDGET:

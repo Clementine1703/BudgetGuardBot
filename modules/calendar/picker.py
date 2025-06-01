@@ -1,8 +1,6 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.state import StatesGroup, State
-from aiogram import Router, F
-from aiogram.fsm.context import FSMContext
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 from core.callbacks import Callbacks
 import calendar
 
@@ -95,14 +93,3 @@ class DatePeriodPicker:
         ])
 
         return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
-
-
-async def start_period_picker(callback: CallbackQuery, state: FSMContext, return_to: str):
-    today = date.today()
-    await state.update_data(
-        year=today.year,
-        month=today.month,
-        start=None,
-        end=None,
-        return_to=return_to
-    )

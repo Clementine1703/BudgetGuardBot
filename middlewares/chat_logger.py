@@ -6,20 +6,35 @@ from core.logger import get_current_chat_logger
 
 class ChatLoggerMiddleware(BaseMiddleware):
     async def __call__(
-            self,
-            handler: Callable[[Union[Message, CallbackQuery], Dict[str, Any]], Awaitable[Any]],
-            event: Union[Message, CallbackQuery],
-            data: Dict[str, Any]
+        self,
+        handler: Callable[[Union[Message, CallbackQuery], Dict[str, Any]], Awaitable[Any]],
+        event: Union[Message, CallbackQuery],
+        data: Dict[str, Any]
     ) -> Any:
-        if isinstance(event, Message):
-            chat_id = event.chat.id
-        elif isinstance(event, CallbackQuery):
-            chat_id = event.message.chat.id if event.message else None
-        else:
-            return await handler(event, data)
+        log_payload = {}
 
-        if chat_id is not None:
-            logger = get_current_chat_logger(chat_id)
-            logger.info(f'Событие от пользователя: {event}')
+        if isinstance(event, Message):
+            log_payload = {
+                "type": "message",
+                "user_id": event.from_user.id,
+                "chat_id": event.chat.id,
+                "message_id": event.message_id,
+                "content_type": event.content_type,
+                "text": event.text or event.caption,
+            }
+
+        elif isinstance(event, CallbackQuery):
+            log_payload = {
+                "type": "callback_query",
+                "user_id": event.from_user.id,
+                "chat_id": event.message.chat.id if event.message else None,
+                "message_id": event.message.message_id if event.message else None,
+                "callback_data": event.data,
+                "message_text": event.message.text if event.message else None,
+            }
+
+        if log_payload.get("chat_id") is not None:
+            logger = get_current_chat_logger(log_payload["chat_id"])
+            logger.info(f'Событие от пользователя: {log_payload}')
 
         return await handler(event, data)
