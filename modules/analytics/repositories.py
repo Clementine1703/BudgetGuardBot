@@ -2,6 +2,7 @@ from datetime import date
 
 from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from core.database import db_session
 from modules.expenses.models import Expense, ExpenseCategory
@@ -161,3 +162,47 @@ async def get_total_summary(
     expense_total = expense_result.scalar() or 0.0
 
     return income_total, expense_total
+
+
+@db_session
+async def get_incomes_expenses_for_period(
+        session: AsyncSession,
+        user_tg_id: int,
+        start_date:date,
+        end_date:date
+):
+    income_stmt = (
+        select(Income)
+        .options(selectinload(Income.category))
+        .join(IncomeCategory, Income.category_id == IncomeCategory.id)
+        .join(User, IncomeCategory.user_id == User.id)
+        .where(
+            and_(
+                User.tg_id == user_tg_id,
+                Income.date >= start_date,
+                Income.date <= end_date,
+            )
+        )
+    )
+    print("Income query:", income_stmt.compile(compile_kwargs={"literal_binds": True}))
+    income_result = await session.execute(income_stmt)
+    incomes = income_result.scalars().all()
+
+    expense_stmt = (
+        select(Expense)
+        .options(selectinload(Expense.category))
+        .join(ExpenseCategory, Expense.category_id == ExpenseCategory.id)
+        .join(User, ExpenseCategory.user_id == User.id)
+        .where(
+            and_(
+                User.tg_id == user_tg_id,
+                Expense.date >= start_date,
+                Expense.date <= end_date,
+            )
+        )
+    )
+    print("Expense query:", expense_stmt.compile(compile_kwargs={"literal_binds": True}))
+    expense_result = await session.execute(expense_stmt)
+    expenses = expense_result.scalars().all()
+
+    return incomes, expenses

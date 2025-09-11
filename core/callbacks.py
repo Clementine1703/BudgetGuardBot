@@ -52,7 +52,12 @@ class Callbacks:
             INCOME_EXPENSE_LINE = f"{PREFIX}:graph"
             SUMMARY = f"{PREFIX}:summary"
 
-        HISTORY = f"{PREFIX}:history"
+        class HISTORY:
+            PREFIX = f"{CallbackNamespace.ANALYTICS.value}:history"
+            MENU = PREFIX
+            LAST_DAY = f"{PREFIX}:last_day"
+            LAST_WEEK = f"{PREFIX}:last_week"
+            PERIOD = f"{PREFIX}:period"
 
     # ===== BUDGET =====
     class BUDGET:

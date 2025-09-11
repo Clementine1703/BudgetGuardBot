@@ -55,7 +55,7 @@ class DatePeriodPicker:
 
         inline_keyboard.append([
             InlineKeyboardButton(text="⬅️", callback_data=f"{Callbacks.PERIOD_PICKER.NAV}:{prev_month.year}:{prev_month.month}"),
-            InlineKeyboardButton(text="📅 Выбрать месяц/год", callback_data=Callbacks.PERIOD_PICKER.PICK_MONTH_YEAR),
+            InlineKeyboardButton(text="📅 месяц/год", callback_data=Callbacks.PERIOD_PICKER.PICK_MONTH_YEAR),
             InlineKeyboardButton(text="➡️", callback_data=f"{Callbacks.PERIOD_PICKER.NAV}:{next_month.year}:{next_month.month}")
         ])
 

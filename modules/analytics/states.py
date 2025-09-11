@@ -7,5 +7,6 @@ class AnalyticsStatesGroup(StatesGroup):
     STATS_INCOME_EXPENSE_LINE = State()
     STATS_SUMMARY = State()
 
-    HISTORY = State()
+    HISTORY_MENU = State()
+    HISTORY_PERIOD = State()
 

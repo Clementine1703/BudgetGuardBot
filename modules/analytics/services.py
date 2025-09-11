@@ -1,14 +1,21 @@
 import io
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from aiogram.types import CallbackQuery, BufferedInputFile
 from aiogram.fsm.context import FSMContext
 
 import plotly.graph_objects as go
 
+from core.callbacks import Callbacks
+from core.stage import Stage
 from . import states, stages, repositories
 from modules.calendar.handlers import start_period_picker
+from ..expenses.models import Expense
+from ..incomes.models import Income
+
+
+MAX_MSG_LEN = 3500
 
 
 async def analytics_menu_handler(cb: CallbackQuery, state: FSMContext) -> None:
@@ -34,6 +41,11 @@ async def analytics_stats_category_pie_period_confirm_handler(cb: CallbackQuery,
     data = await state.get_data()
     await state.clear()
     await send_pie_chart_callback(cb, data['date_period']['start'], data['date_period']['end'])
+    await cb.message.answer(
+        stages.STATS_MENU.msg(),
+        reply_markup=stages.STATS_MENU.kb(),
+    )
+    await state.set_state(states.AnalyticsStatesGroup.STATS_MENU)
 
 
 async def analytics_stats_income_expense_line_start_picker_handler(cb: CallbackQuery, state: FSMContext) -> None:
@@ -44,16 +56,21 @@ async def analytics_stats_income_expense_line_period_confirm_handler(cb: Callbac
     data = await state.get_data()
     await state.clear()
     await send_income_expense_line_chart_callback(cb, data['date_period']['start'], data['date_period']['end'])
+    await cb.message.answer(
+        stages.STATS_MENU.msg(),
+        reply_markup=stages.STATS_MENU.kb(),
+    )
+    await state.set_state(states.AnalyticsStatesGroup.STATS_MENU)
 
 
-async def summary_period_start_picker_handler(cb: CallbackQuery, state: FSMContext) -> None:
+async def analytics_stats_summary_period_start_picker_handler(cb: CallbackQuery, state: FSMContext) -> None:
     """
     Запускает процесс выбора периода (дата-репикер).
     """
     await start_period_picker(cb, state, target_state=states.AnalyticsStatesGroup.STATS_SUMMARY)
 
 
-async def summary_period_confirm_handler(cb: CallbackQuery, state: FSMContext) -> None:
+async def analytics_stats_summary_period_confirm_handler(cb: CallbackQuery, state: FSMContext) -> None:
     """
     Получает выбранный период из состояния и отправляет итоговую информацию.
     """
@@ -84,7 +101,11 @@ async def summary_period_confirm_handler(cb: CallbackQuery, state: FSMContext) -
     )
 
     await cb.message.answer(caption)
-    await cb.answer()
+    await cb.message.answer(
+        stages.STATS_MENU.msg(),
+        reply_markup=stages.STATS_MENU.kb(),
+    )
+    await state.set_state(states.AnalyticsStatesGroup.STATS_MENU)
 
 
 async def send_pie_chart_callback(
@@ -199,3 +220,150 @@ async def send_income_expense_line_chart_callback(
 
     await cb.message.answer_photo(photo=photo, caption=caption)
     await cb.answer()
+
+
+async def analytics_history_handler(cb: CallbackQuery, state: FSMContext) -> None:
+    await cb.message.edit_text(
+        stages.HISTORY_MENU.msg(),
+        reply_markup=stages.HISTORY_MENU.kb(),
+    )
+    await state.set_state(states.AnalyticsStatesGroup.HISTORY_MENU)
+
+
+async def analytics_history_period_handler(cb: CallbackQuery, state: FSMContext) -> None:
+    if cb.data == Callbacks.ANALYTICS.HISTORY.PERIOD:
+        await start_period_picker(cb, state, target_state=states.AnalyticsStatesGroup.HISTORY_PERIOD)
+    else:
+        start_date = datetime.now() - timedelta(
+            days=1) if cb.data == Callbacks.ANALYTICS.HISTORY.LAST_DAY else datetime.now() - timedelta(days=7)
+        end_date = datetime.now()
+        await show_operations_history(cb, cb.from_user.id, start_date, end_date)
+        await state.set_state(states.AnalyticsStatesGroup.HISTORY_MENU)
+
+
+async def analytics_history_period_confirm_handler(cb: CallbackQuery, state: FSMContext) -> None:
+    data = await state.get_data()
+    await state.clear()
+
+    start_date: datetime = data.get("date_period", {}).get("start")
+    end_date: datetime = data.get("date_period", {}).get("end")
+
+    await show_operations_history(cb, cb.from_user.id, start_date, end_date)
+    await state.set_state(states.AnalyticsStatesGroup.HISTORY_MENU)
+
+
+async def show_operations_history(
+    cb: CallbackQuery,
+    user_id: int,
+    start_date: datetime,
+    end_date: datetime
+) -> None:
+    operations = await repositories.get_incomes_expenses_for_period(
+        user_id,
+        start_date,
+        end_date
+    )
+
+    history_messages = await format_operations_history(operations, start_date, end_date)
+    for idx, msg in enumerate(history_messages):
+        if idx == 0:
+            await cb.message.answer(msg, parse_mode="HTML")
+        else:
+            await cb.message.answer(msg, parse_mode="HTML")
+
+    await cb.message.answer(
+        "Укажите период:",
+        reply_markup=stages.HISTORY_MENU.kb()
+    )
+
+
+async def format_operations_history(
+    operations: tuple[list[Income], list[Expense]],
+    start_date: datetime,
+    end_date: datetime
+) -> list[str]:
+    incomes, expenses = operations
+
+    all_ops = sorted([*incomes, *expenses], key=lambda x: x.date, reverse=True)
+    actual_start = min((op.date for op in all_ops), default=start_date)
+    actual_end = max((op.date for op in all_ops), default=end_date)
+
+    def format_income(income: Income) -> str:
+        category = getattr(getattr(income, 'category', None), 'name', 'Без категории')
+        date_str = income.date.strftime('%d.%m.%Y %H:%M')
+        comment = f"\n<i>📝 {income.comment}</i>" if income.comment else ""
+
+        return (
+            f"<b>💰 +{income.amount} ₽</b>  <u>{category}</u>\n"
+            f"<b>📅</b> <code>{date_str}</code>{comment}\n"
+        )
+
+    def format_expense(expense: Expense) -> str:
+        category = getattr(getattr(expense, 'category', None), 'name', 'Без категории')
+        date_str = expense.date.strftime('%d.%m.%Y %H:%M')
+        comment = f"\n<i>📝 {expense.comment}</i>" if expense.comment else ""
+
+        return (
+            f"<b>🔻 -{expense.amount} ₽</b>  <u>{category}</u>\n"
+            f"<b>📅</b> <code>{date_str}</code>{comment}\n"
+        )
+
+    total_income = sum(income.amount for income in incomes)
+    total_expense = sum(exp.amount for exp in expenses)
+    balance = total_income - total_expense
+
+    header = [
+        "📊 <b>История операций</b>",
+        f"📅 Период: <code>{actual_start.strftime('%d.%m.%Y')}</code> — <code>{actual_end.strftime('%d.%m.%Y')}</code>",
+        "━━━━━━━━━━━━━━━━━━",
+    ]
+
+    # Начинаем с заголовка и доходов
+    message_chunks: list[str] = []
+    current_message = "\n".join(header)
+
+    # Добавляем блок доходов
+    income_header = f"📈 <b>Доходы ({len(incomes)})</b>" if incomes else "📈 <b>Доходов нет</b>"
+    income_lines = [income_header]
+    if incomes:
+        for income in incomes:
+            income_lines.append(format_income(income))
+
+    # Добавляем доходы построчно
+    for line in income_lines + ["─────────────"]:
+        if len(current_message) + len(line) + 1 > MAX_MSG_LEN:
+            message_chunks.append(current_message)
+            current_message = ""
+        current_message += f"\n{line}"
+
+    # Расходы
+    expense_header = f"📉 <b>Расходы ({len(expenses)})</b>" if expenses else "📉 <b>Расходов нет</b>"
+    expense_lines = [expense_header]
+    if expenses:
+        for expense in expenses:
+            expense_lines.append(format_expense(expense))
+
+    for line in expense_lines + ["─────────────"]:
+        if len(current_message) + len(line) + 1 > MAX_MSG_LEN:
+            message_chunks.append(current_message)
+            current_message = ""
+        current_message += f"\n{line}"
+
+    # Итоговый блок
+    footer_lines = [
+        f"💵 <b>Итого доходы:</b> <b>+{total_income} ₽</b>" if incomes else "",
+        f"💸 <b>Итого расходы:</b> <b>-{total_expense} ₽</b>" if expenses else "",
+        f"🧮 <b>Баланс:</b> <b>{'+' if balance >= 0 else ''}{balance} ₽</b>",
+        f"📌 <b>Всего операций:</b> <b>{len(incomes) + len(expenses)}</b>",
+    ]
+
+    for line in filter(None, footer_lines):
+        if len(current_message) + len(line) + 1 > MAX_MSG_LEN:
+            message_chunks.append(current_message)
+            current_message = ""
+        current_message += f"\n{line}"
+
+    if current_message.strip():
+        message_chunks.append(current_message)
+
+    return message_chunks
