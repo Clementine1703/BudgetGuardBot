@@ -51,4 +51,3 @@ COMMENT_INPUT = Stage(
         [SKIP_BUTTON],
     ])
 )
-

@@ -14,7 +14,6 @@ class CallbackNamespace(Enum):
 
     PICKER = "picker"
 
-
 class Callbacks:
     """Централизованное хранилище всех callback-действий бота"""
 
