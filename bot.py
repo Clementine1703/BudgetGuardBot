@@ -11,6 +11,9 @@ from middlewares import UserMiddleware, ChatLoggerMiddleware
 from modules.main.handlers import router as router_main
 from modules.expenses.handlers import router as router_expense
 from modules.incomes.handlers import router as router_incomes
+from modules.analytics.handlers import router as router_analytics
+from modules.calendar.handlers import router as router_calendar
+
 
 
 dp = Dispatcher()
@@ -20,9 +23,11 @@ for m in middlewares:
     dp.message.middleware(m)
     dp.callback_query.middleware(m)
 
-dp.include_router(router_main)
 dp.include_router(router_expense)
 dp.include_router(router_incomes)
+dp.include_router(router_analytics)
+dp.include_router(router_calendar)
+dp.include_router(router_main)
 
 
 async def main() -> None:

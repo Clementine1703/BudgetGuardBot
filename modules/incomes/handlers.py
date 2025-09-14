@@ -27,6 +27,16 @@ async def input_new_category_handler(message: Message, state: FSMContext) -> Non
     await services.handle_input_new_category(message, state)
 
 
+@router.callback_query(AddIncome.select_category, F.data == Callbacks.INCOME.DELETE_CATEGORY)
+async def select_deleting_category_handler(cb: CallbackQuery, state: FSMContext) -> None:
+    await services.handle_select_deleting_category(cb, state)
+
+
+@router.callback_query(AddIncome.delete_category, F.data.startswith(Callbacks.INCOME.ADD_AMOUNT))
+async def delete_category_handler(cb: CallbackQuery, state: FSMContext) -> None:
+    await services.handle_delete_category(cb, state)
+
+
 @router.callback_query(AddIncome.select_category, F.data.startswith(Callbacks.INCOME.ADD_AMOUNT))
 async def input_amount_handler(cb: CallbackQuery, state: FSMContext) -> None:
     await services.handle_input_amount(cb, state)

@@ -26,7 +26,7 @@ def upgrade() -> None:
     )
 
     op.create_table(
-        'expenses',
+        'expense',
         sa.Column('id', sa.Integer(), primary_key=True),
         sa.Column('category_id', sa.Integer(), sa.ForeignKey('expense_category.id'), nullable=False),
         sa.Column('amount', sa.Integer(), nullable=False),
@@ -36,5 +36,5 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_table('expenses')
+    op.drop_table('expense')
     op.drop_table('expense_category')

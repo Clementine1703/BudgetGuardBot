@@ -14,6 +14,12 @@ class ExpenseCategory(Base):
     name = Column(String, unique=True)
     user_id = Column(Integer, ForeignKey("tg_user.id"), nullable=False)
 
+    expenses = relationship(
+        "Expense",
+        back_populates="category",
+        cascade="all, delete-orphan"
+    )
+
 
 class Expense(Base):
     __tablename__ = 'expense'
@@ -24,3 +30,5 @@ class Expense(Base):
     amount = Column(Integer, nullable=False)
     comment = Column(String, nullable=True)
     date = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+
+    category = relationship("ExpenseCategory", back_populates="expenses")
