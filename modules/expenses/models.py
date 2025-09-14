@@ -14,7 +14,11 @@ class ExpenseCategory(Base):
     name = Column(String, unique=True)
     user_id = Column(Integer, ForeignKey("tg_user.id"), nullable=False)
 
-    expenses = relationship("Expense", back_populates="category")
+    expenses = relationship(
+        "Expense",
+        back_populates="category",
+        cascade="all, delete-orphan"
+    )
 
 
 class Expense(Base):

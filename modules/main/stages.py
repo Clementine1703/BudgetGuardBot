@@ -4,20 +4,34 @@ from core.utils import create_inline_kb
 
 
 MAIN_MENU = Stage(
-    msg='BudgetGuard – это бот для планирования бюджета и отслеживания расходов...',
+    msg=(
+        "<b>🏠 Главное меню:</b>\n\n"
+        "Выберите одно из действий ниже:"
+    ),
     kb=create_inline_kb([
-        [('💸 Внести трату', Callbacks.EXPENSE.SELECT_CATEGORY), ('💰 Внести доход', Callbacks.INCOME.SELECT_CATEGORY)],
-        [('📊 Анализ и отчеты', Callbacks.ANALYTICS.MENU)],
+        [
+            ('💸 Внести трату', Callbacks.EXPENSE.SELECT_CATEGORY),
+            ('💰 Внести доход', Callbacks.INCOME.SELECT_CATEGORY)
+        ],
+        [
+            ('📊 Анализ и отчеты', Callbacks.ANALYTICS.MENU)
+        ],
     ]),
 )
 
 
-# MAIN_MENU = Stage(
-#     msg='BudgetGuard – это бот для планирования бюджета и отслеживания расходов...',
-#     kb=create_inline_kb([
-#         [('💸 Внести трату', Callbacks.EXPENSE.SELECT_CATEGORY), ('💰 Внести доход', Callbacks.INCOME.SELECT_CATEGORY)],
-#         [('📊 Анализ и отчеты', Callbacks.ANALYTICS.MENU), ('📅 План бюджета', Callbacks.BUDGET.MENU)],
-#         [('📁 Категории и параметры', Callbacks.CATEGORY.MENU), ('🔔 Напоминания', Callbacks.REMINDER.MENU)],
-#         [('⚙️ Настройки', Callbacks.SETTINGS.MENU), ('📤 Экспорт / Импорт', Callbacks.EXPORT.MENU)]
-#     ]),
-# )
+FALLBACK_MAIN_MENU = Stage(
+    msg=(
+        "⚠️ <b>Что-то пошло не так.</b>\n\n"
+        "Вы были перемещены в главное меню. Выберите действие:"
+    ),
+    kb=create_inline_kb([
+        [
+            ('💸 Внести трату', Callbacks.EXPENSE.SELECT_CATEGORY),
+            ('💰 Внести доход', Callbacks.INCOME.SELECT_CATEGORY)
+        ],
+        [
+            ('📊 Анализ и отчеты', Callbacks.ANALYTICS.MENU)
+        ],
+    ]),
+)

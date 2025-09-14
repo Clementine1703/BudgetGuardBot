@@ -14,7 +14,11 @@ class IncomeCategory(Base):
     name = Column(String, unique=True)
     user_id = Column(Integer, ForeignKey("tg_user.id"), nullable=False)
 
-    incomes = relationship("Income", back_populates="category")
+    incomes = relationship(
+        "Income",
+        back_populates="category",
+        cascade="all, delete-orphan"
+    )
 
 
 class Income(Base):

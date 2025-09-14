@@ -22,11 +22,11 @@ for m in middlewares:
     dp.message.middleware(m)
     dp.callback_query.middleware(m)
 
-dp.include_router(router_main)
 dp.include_router(router_expense)
 dp.include_router(router_incomes)
 dp.include_router(router_analytics)
 dp.include_router(router_calendar)
+dp.include_router(router_main)
 
 
 async def main() -> None:

@@ -29,6 +29,7 @@ class Callbacks:
         PREFIX = CallbackNamespace.EXPENSE.value
         SELECT_CATEGORY = f"{PREFIX}:select_category"
         CREATE_CATEGORY = f"{PREFIX}:create_category"
+        DELETE_CATEGORY = f"{PREFIX}:delete_category"
         ADD_AMOUNT = f"{PREFIX}:add_amount"
         ADD_COMMENT = f"{PREFIX}:add_comment"
 
@@ -37,9 +38,9 @@ class Callbacks:
         PREFIX = CallbackNamespace.INCOME.value
         SELECT_CATEGORY = f"{PREFIX}:select_category"
         CREATE_CATEGORY = f"{PREFIX}:create_category"
+        DELETE_CATEGORY = f"{PREFIX}:delete_category"
         ADD_AMOUNT = f"{PREFIX}:add_amount"
         ADD_COMMENT = f"{PREFIX}:add_comment"
-        ADD_DATE = f"{PREFIX}:add_date"
 
     # ===== ANALYTICS =====
     class ANALYTICS:

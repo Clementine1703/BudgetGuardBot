@@ -184,7 +184,6 @@ async def get_incomes_expenses_for_period(
             )
         )
     )
-    print("Income query:", income_stmt.compile(compile_kwargs={"literal_binds": True}))
     income_result = await session.execute(income_stmt)
     incomes = income_result.scalars().all()
 
@@ -201,7 +200,6 @@ async def get_incomes_expenses_for_period(
             )
         )
     )
-    print("Expense query:", expense_stmt.compile(compile_kwargs={"literal_binds": True}))
     expense_result = await session.execute(expense_stmt)
     expenses = expense_result.scalars().all()
 
