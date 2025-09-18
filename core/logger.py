@@ -36,21 +36,20 @@ def setup_logger():
 
 
 def get_current_chat_logger(chat_id: int) -> logging.Logger:
-    def remove_all_handlers(logger: logging.Logger):
-        for handler in logger.handlers:
-            logger.removeHandler(handler)
-
     logger = logging.getLogger(f'chat_{chat_id}')
-    remove_all_handlers(logger)
+    logger.propagate = False
 
-    os.makedirs(settings.LOGS_DIR_CHATS, exist_ok=True)
-    filepath = os.path.join(settings.LOGS_DIR_CHATS, f'{chat_id}.log')
+    if logger.hasHandlers():
+        return logger
+    else:
 
-    handler = logging.FileHandler(filename=filepath, encoding='utf-8')
-    handler.setLevel(logging.DEBUG)
-    handler.setFormatter(logging.Formatter(settings.LOGS_FORMAT))
+        os.makedirs(settings.LOGS_DIR_CHATS, exist_ok=True)
+        filepath = os.path.join(settings.LOGS_DIR_CHATS, f'{chat_id}.log')
+        handler = logging.FileHandler(filename=filepath, encoding='utf-8')
+        handler.setLevel(logging.DEBUG)
+        handler.setFormatter(logging.Formatter(settings.LOGS_FORMAT))
 
-    logger.addHandler(handler)
+        logger.addHandler(handler)
     return logger
 
 
